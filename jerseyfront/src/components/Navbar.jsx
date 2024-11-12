@@ -1,10 +1,23 @@
-import { useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { assets } from '../assets/assets'
 import { Link, NavLink } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
+import { useLocation } from "react-router-dom";
 
 const Navbar = () => {
 
     const [visible, setVisible] = useState(false);
+    const [searchIcon, setSearchIcon] = useState(false);
+    const {showSearch, setShowSearch} = useContext(ShopContext);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.pathname.includes('collection')) {
+            setSearchIcon(true);
+        } else {
+            setSearchIcon(false);
+        }
+    }, [location])
 
 
   return (
@@ -37,7 +50,15 @@ const Navbar = () => {
         </ul>
 
         <div className="flex items-center gap-6">
-            <img src={assets.search_icon} alt="" className="w-5 cursor-pointer" />
+            <img
+             src={assets.search_icon} 
+             alt="" 
+             className={`w-5 cursor-pointer ${
+                searchIcon ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'
+              }`}
+             onClick={() => setShowSearch(!showSearch)}
+             
+            />
 
             <div className="group relative">
                 <img src={assets.profile_icon} alt="" className="w-5 cursor-pointer" />
@@ -61,7 +82,7 @@ const Navbar = () => {
 
         {/* Sidebar menu for small screens */}
 
-        <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-[width] duration-500 ease-in-out ${visible ? 'w-full' : 'w-0'}`}>
+        <div className={`z-50 absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-[width] duration-500 ease-in-out ${visible ? 'w-full' : 'w-0'}`}>
             <div className="flex flex-col text-gray-600">
                 <div className="flex items-center gap-4 p-3 cursor-pointer" onClick={() => setVisible(false)}>
                     <img src={assets.dropdown_icon} alt="" className="h-4 rotate-180 " />
