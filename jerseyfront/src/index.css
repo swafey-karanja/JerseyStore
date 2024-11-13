@@ -10,22 +10,28 @@ a.active hr {
 
 * {
     font-family: Outfit;
+    user-select: none; /* Prevent text selection and text cursor */
+    
+}
+
+input, textarea {
+    user-select: text; /* Allow text selection */
+    cursor: text;      /* Show text cursor */
 }
 
 .prata-regular {
     font-family: "Prata", serif;
     font-weight: 400;
     font-style: normal;
-  }
+}
 
-  ::-webkit-scrollbar{
+::-webkit-scrollbar {
     display: none;
-  }
+}
 
-@media (max-width:640px) {
+@media (max-width: 640px) {
     a.active {
         background-color: black;
         color: white;
     }
 }
-  

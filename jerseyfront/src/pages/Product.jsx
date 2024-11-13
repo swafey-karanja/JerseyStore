@@ -6,7 +6,7 @@ import RelatedProducts from "../components/RelatedProducts";
 
 const Product = () => {
 
-  const { products, currency } = useContext(ShopContext);
+  const { products, currency, addToCart } = useContext(ShopContext);
   const { productId } = useParams();
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState('');
@@ -74,7 +74,10 @@ const Product = () => {
               }
             </div>      
           </div>
-          <button className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700">
+          <button 
+            className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700"
+            onClick={() => addToCart(productData._id, size)}
+          >
             ADD TO CART
           </button>
           <hr className="mt-8 sm:w-4/5" />
@@ -95,7 +98,7 @@ const Product = () => {
         </div>
         <div className="flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500">
           <p>
-            Discover the latest fashion trends at our e-commerce store, offering a wide range of stylish clothing for women, men, and children. Whether you're looking for casual wear, office attire, or special occasion outfits, we have something for every style and budget.
+            Discover the latest fashion trends at our e-commerce store, offering a wide range of stylish clothing for women, men, and children. Whether you are looking for casual wear, office attire, or special occasion outfits, we have something for every style and budget.
           </p>
           <p>
             Our curated collections feature high-quality fabrics, trendy designs, and comfortable fits, ensuring you look and feel great. With easy browsing, secure payment options, and fast delivery, shopping for your wardrobe has never been easier. Enjoy exceptional customer service and find your next favorite outfit today!
