@@ -3,7 +3,7 @@ import { ShopContext } from "../context/ShopContext"
 import { Link } from "react-router-dom"
 import PropTypes from "prop-types";
 
-const ProductItem = ({ id,name,image,price }) => {
+const ProductItem = ({ id, name, image, price }) => {
 
     const {currency} = useContext(ShopContext);
 
