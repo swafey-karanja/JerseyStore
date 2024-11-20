@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+* {
+  font-family: Outfit;
+  user-select: none; /* Prevent text selection and text cursor */
+  
+}
+
+input, textarea {
+  user-select: text; /* Allow text selection */
+  cursor: text;      /* Show text cursor */
+}

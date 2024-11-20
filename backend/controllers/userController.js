@@ -2,7 +2,6 @@ import userModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { json } from "express";
 
 
 const createToken = (id) => {
@@ -101,6 +100,25 @@ const registerUser = async (req, res) => {
 
 const adminLogin = async (req, res) => {
     
+    try {
+        
+        const { email, password } = req.body;
+
+        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+            const token = jwt.sign( email+password, process.env.JWT_SECRET );
+            res.json({ success: true, message: "Admin logged in successfully", token });
+        } else {
+            res.json({ success: false, message: "Invalid admin credentials" });
+        }
+
+
+    } catch (error) {
+        
+        console.log(error);
+        res.json({ success: false, message: error.message });
+
+    }
+
 }
 
 export { registerUser, loginUser, adminLogin };

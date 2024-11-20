@@ -37,7 +37,7 @@ const addProduct = async (req, res) => {
         let imagesUrl = await Promise.all(
             images.map(async (image) => {
                 let result = await cloudinary.uploader.upload(image.path, {resource_type: 'image'});
-                return result.secure_url;
+                return result.secure_url
             })
         );
 
@@ -76,18 +76,59 @@ const addProduct = async (req, res) => {
 
 const listProducts = async (req, res) => {
     
+    try {
+        
+        const products = await productModel.find(
+            {}
+        );
+        
+        res.json({ success: true, products });
+
+    } catch (error) {
+        
+        console.log(error);
+        res.json({ success: false, message: error.message });
+
+    }
+
 }
 
 // Function to remove a product
 
 const removeProduct = async (req, res) => {
     
+    try {
+        
+        await productModel.findByIdAndDelete(req.body.id);
+
+        res.json({ success: true, message: "Product deleted successfully" });
+
+    } catch (error) {
+
+        console.log(error);
+        res.json({ success: false, message: error.message });
+        
+    }
+
 }
 
 // Function to get a single product info
 
 const singleProductInfo = async (req, res) => {
     
+    try {
+        
+        const product = await productModel.findById(req.body.id);
+
+        res.json({ success: true, product });
+
+    } catch (error) {
+
+        console.log(error);
+        res.json({ success: false, message: error.message });
+        
+    }
+
 }
 
 export { addProduct, listProducts, removeProduct, singleProductInfo };
