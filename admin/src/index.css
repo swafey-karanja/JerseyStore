@@ -16,7 +16,10 @@
   
 }
 
-input, textarea {
+input, textarea, select {
   user-select: text; /* Allow text selection */
   cursor: text;      /* Show text cursor */
+  border: 1px solid #c2c2c2;
+  outline-color: #86c58b;
+  border-radius: 5px;
 }
