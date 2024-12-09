@@ -1,7 +1,11 @@
 import { useState } from "react"
 import { assets } from "../assets/assets"
+import axios from 'axios'
+import { backendUrl } from "../App";
+import PropTypes from "prop-types"
+import { toast } from "react-toastify";
 
-const Add = () => {
+const Add = ({ token }) => {
 
   const [image1, setImage1] = useState(false);
   const [image2, setImage2] = useState(false);
@@ -10,18 +14,91 @@ const Add = () => {
 
 
   const [description, setDescription] = useState('');
-  const [productName, setProductName] = useState('');
+  const [name, setname] = useState('');
   const [price, setPrice] = useState(0);
-  const [category, setCategory] = useState('');
-  const [subCategory, setSubCategory] = useState('');
+  const [category, setCategory] = useState('Men');
+  const [subCategory, setSubCategory] = useState('Topwear');
   const [sizes, setSizes] = useState([]);
   const [bestSeller, setBestSeller] = useState(false);
 
   const onFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data", productName, description);
+  
+    // Validation: Check if price is greater than 0
+    if (parseFloat(price) <= 0) {
+      toast.error("Price must be greater than 0")
+      return;
+    }
+  
+    // Validation: Check if image1 is provided
+    if (image1 === false) {
+      toast.error("Image 1 is required.");
+      return;
+    }
 
-  }
+    if(sizes.length === 0) {
+      toast.error("Select a product size.");
+      return;
+    }
+  
+    try {
+      const formData = new FormData();
+  
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("price", parseFloat(price.replace(/,/g, ''))); // Remove commas and convert to number
+      formData.append("category", category);
+      formData.append("subCategory", subCategory);
+      formData.append("sizes", JSON.stringify(sizes));
+      formData.append("bestSeller", bestSeller);
+  
+      if (image1) formData.append("image1", image1);
+      if (image2) formData.append("image2", image2);
+      if (image3) formData.append("image3", image3);
+      if (image4) formData.append("image4", image4);
+  
+      console.log(formData);
+  
+      const response = await axios.post(`${backendUrl}/api/product/add-product`, formData, {
+        headers: { token },
+      });
+  
+      if (response.data.success) {
+        toast.success(response.data.message);
+        
+        // reset the form
+        setDescription('');
+        setname('');
+        setPrice(0);
+        setCategory('Men');
+        setSubCategory('Topwear');
+        setSizes([]);
+        setBestSeller(false);
+        setImage1(false);
+        setImage2(false);
+        setImage3(false);
+        setImage4(false);
+
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+
+  const handlePriceChange = (value) => {
+    // Remove any non-numeric characters except for periods
+    const numericValue = value.replace(/[^0-9]/g, '');
+  
+    // Format the number with commas
+    const formattedValue = new Intl.NumberFormat('en-KE').format(numericValue);
+  
+    // Update the state
+    setPrice(formattedValue);
+  };
+  
 
 
   return (
@@ -32,7 +109,7 @@ const Add = () => {
         <div className="flex gap-2">
           <label htmlFor="Image1">
             <img src={!image1 ? assets.upload_area : URL.createObjectURL(image1)} className="cursor-pointer w-20" />
-            <input onChange={(e) => setImage1(e.target.files[0])} type="file" id="Image1" name="Image1" hidden required />
+            <input onChange={(e) => setImage1(e.target.files[0])} type="file" id="Image1" name="Image1" hidden />
           </label>
 
           <label htmlFor="Image2">
@@ -55,8 +132,8 @@ const Add = () => {
       <div className="w-full">
         <p className="mb-2 text-xl font-bold">Product Name</p>
         <input 
-          value={productName} 
-          onChange={(e) => setProductName(e.target.value)}
+          value={name} 
+          onChange={(e) => setname(e.target.value)}
           type="text" 
           placeholder="Product Name" 
           className="py-1.5 px-3.5 w-full max-w-[500px]" 
@@ -99,14 +176,15 @@ const Add = () => {
       <div>
         <p className="mb-2 text-xl font-bold">Product Price</p>
         <input 
-          type="number" 
+          type="text" 
           placeholder="2,500" 
           className="py-1.5 px-3.5 w-full max-w-[500px]" 
           required
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={(e) => handlePriceChange(e.target.value)}
         />
       </div>
+
 
       <div>
         <p className="mb-2 text-xl font-bold">Product Size</p>
@@ -142,5 +220,11 @@ const Add = () => {
     </form>
   )
 }
+
+
+Add.propTypes = {
+  token : PropTypes.string.isRequired
+}
+
 
 export default Add

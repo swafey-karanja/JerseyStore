@@ -24,8 +24,6 @@ const addProduct = async (req, res) => {
             return res.json({ success: false, message: "Provide all the required fields" });
         }
 
-        // console.log( name, description, price, category, subCategory, sizes, bestSeller );
-        
 
         // Storing the images in the DB
 
@@ -82,7 +80,7 @@ const listProducts = async (req, res) => {
             {}
         );
         
-        res.json({ success: true, products });
+        res.json({ success: true, message: "Products fetched successfully", products });
 
     } catch (error) {
         

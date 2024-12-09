@@ -5,13 +5,6 @@ import { toast } from "react-toastify";
 
 const Navbar = ({ setToken }) => {
 
-  // const logOut = () => {
-  //   setToken('');
-  //   toast.success("Logged out successfully!");
-  //   localStorage.removeItem("token");
-  //   window.location.reload();
-  // }
-
   return (
     <div className="flex items-center py-2 px-[4%] justify-between">
         <img src={assets.logo} alt="" className="w-[max(18%,80px)] " />
