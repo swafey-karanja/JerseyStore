@@ -76,9 +76,7 @@ const listProducts = async (req, res) => {
     
     try {
         
-        const products = await productModel.find(
-            {}
-        );
+        const products = await productModel.find({});
         
         res.json({ success: true, message: "Products fetched successfully", products });
 

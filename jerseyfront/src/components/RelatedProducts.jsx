@@ -38,7 +38,7 @@ const RelatedProducts = ({category, subCategory}) => {
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    <ProductItem id={item._id} name={item.name} price={item.price} image={item.image} />
+                    <ProductItem id={item._id} name={item.name} price={item.price} images={item.images} />
                   </div>                
                 ))
             }
