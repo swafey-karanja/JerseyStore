@@ -103,6 +103,12 @@ const ShopContextProvider = (props) => {
     useEffect(() => {
       fetchProducts();
     }, [])
+
+    useEffect(() => {
+        if(!token && localStorage.getItem("loginToken")) {
+            setToken(localStorage.getItem("loginToken"));
+        }
+    })
     
 
     const value = {

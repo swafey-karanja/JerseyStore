@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext, useState, useEffect } from "react"
 import { ShopContext } from "../context/ShopContext";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 const Login = () => {
 
-  const [currentState, setCurrentState] = useState('SignUp');
+  const [currentState, setCurrentState] = useState('Login');
   const {token, setToken, backendUrl, navigate} = useContext(ShopContext);
   const [ name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -23,7 +23,6 @@ const Login = () => {
           setToken(response.data.token);
           localStorage.setItem("loginToken", response.data.token);
           toast.success(response.data.message);
-          // navigate('/');
         }
         else {
           toast.error(response.data.message);
@@ -47,6 +46,13 @@ const Login = () => {
       toast.error("Something went wrong. Try again")
     }
   }
+
+  useEffect(() => {
+    if(token) {
+      navigate('/');
+    }
+  }, [token]);
+  
 
   return (
     <form onSubmit={onSubmitHandler} className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800">
