@@ -10,22 +10,24 @@ const Cart = () => {
   const [cartData, setCartData] = useState([]);
 
   useEffect(() => {
-    const tempData = [];
+    if (products.length > 0) {
+      const tempData = [];
 
-    for(const items in cartItems) {
-      for(const item in cartItems[items]) {
-        if (cartItems[items][item] > 0) {
-          tempData.push({
-            _id: items,
-            size : item,
-            quantity: cartItems[items][item]
-          })
+      for(const items in cartItems) {
+        for(const item in cartItems[items]) {
+          if (cartItems[items][item] > 0) {
+            tempData.push({
+              _id: items,
+              size : item,
+              quantity: cartItems[items][item]
+            })
+          }
         }
       }
-    }
 
-    setCartData(tempData);
-  },[cartItems]);
+      setCartData(tempData);
+    }
+  },[cartItems, products]);
 
   return (
     <div className="border-t pt-14">
@@ -41,7 +43,7 @@ const Cart = () => {
             return (
               <div key={index} className="py-4 border-t bprder-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4">
                 <div className="flex items-start gap-6">
-                  <img src={productData.images[0]} alt={productData.name} className="w-16 sm:w-20" />
+                  <img src={productData.images?.[0]} alt={productData.name} className="w-16 sm:w-20" />
                   <div className="">
                     <p className="text-xs sm:text-lg font-medium">{productData.name} {productData.subCategory}</p>
                     <div className="flex items-center gap-5 mt-2">

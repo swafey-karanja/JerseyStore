@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 const Login = () => {
 
   const [currentState, setCurrentState] = useState('Login');
-  const {token, setToken, backendUrl, navigate} = useContext(ShopContext);
+  const {token, setToken, backendUrl, navigate, handleLogin } = useContext(ShopContext);
   const [ name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,8 +20,9 @@ const Login = () => {
         const response = await axios.post(backendUrl + '/api/user/register', { name, email, password });
         console.log(response);
         if (response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("loginToken", response.data.token);
+          // setToken(response.data.token);
+          // localStorage.setItem("loginToken", response.data.token);
+          handleLogin(response.data.token);
           toast.success(response.data.message);
         }
         else {
@@ -32,8 +33,9 @@ const Login = () => {
       else if(currentState === 'Login') {
         const response = await axios.post(backendUrl + '/api/user/login', { email, password });
         if(response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("loginToken", response.data.token);
+          // setToken(response.data.token);
+          // localStorage.setItem("loginToken", response.data.token);
+          handleLogin(response.data.token);
           toast.success(response.data.message);
          
         } else {
