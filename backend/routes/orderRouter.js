@@ -18,7 +18,7 @@ orderRouter.post("/razorpay", authUser, placeOrderRazorPay);
 orderRouter.post("/stripe", authUser, placeOrderStripe);
 
 // user actions
-orderRouter.get("/user-orders", authUser, userOrders);
+orderRouter.post("/user-orders", authUser, userOrders);
 
 // admin actions
 orderRouter.get("/orders", adminAuth, allOrders);
