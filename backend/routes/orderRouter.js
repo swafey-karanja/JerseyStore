@@ -21,7 +21,7 @@ orderRouter.post("/stripe", authUser, placeOrderStripe);
 orderRouter.post("/user-orders", authUser, userOrders);
 
 // admin actions
-orderRouter.get("/orders", adminAuth, allOrders);
+orderRouter.post("/all-orders", adminAuth, allOrders);
 orderRouter.post("/update-status", adminAuth, updateOrderStatus);
 
 export default orderRouter;
