@@ -3,6 +3,7 @@ import axios from "axios";
 import { backendUrl, currency } from "../App.jsx";
 import { toast } from "react-toastify";
 import { assets } from "../assets/assets.js";
+import PropTypes from "prop-types";
 
 const Orders = ({token}) => {
 
@@ -21,7 +22,7 @@ const Orders = ({token}) => {
       if(response.data.success) {
         setOrders(response.data.orders);
         console.log("Orders fetched successfully", orders);
-        toast.success("Orders fetched successfully");
+        // toast.success("Orders fetched successfully");
       } else {
         console.error("Failed to fetch orders", response.data.message);
         toast.error("Failed to fetch orders");
@@ -33,8 +34,28 @@ const Orders = ({token}) => {
     }
   }
 
+  const statusHandler = async (orderId, event) => {
+    try {
+      
+      const response = await axios.post(backendUrl + "/api/order/update-status", {orderId, status: event.target.value}, {headers:{token}});
+
+      if(response.data.success) {
+        toast.success("Order status updated successfully");
+        fetchAllOrders();
+      } else {
+        console.error("Failed to update order status", response.data.message);
+        toast.error("Failed to update order status");
+      }
+    } catch (error) {
+      console.error("Error updating order status", error);
+      toast.error("Failed to update order status");
+      
+    }
+  }
+
   useEffect(() => {
     fetchAllOrders();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
   return (
@@ -71,7 +92,7 @@ const Orders = ({token}) => {
                 <p>Payment: {order.payment ? "PAID" : "PENDING" }</p>
               </div>
               <p className="text-sm sm:text-[15px]" >{currency}: {order.amount}</p>
-              <select value={order.status} className="p-2 font-semibold cursor-pointer">
+              <select onChange={(event) => {statusHandler( order._id, event)}} value={order.status} className="p-2 font-semibold cursor-pointer">
                 <option value="order-placed">Order Placed</option>
                 <option value="dispatched">Dispatched</option>
                 <option value="shipped">Shipped</option>
@@ -85,5 +106,9 @@ const Orders = ({token}) => {
     </div>
   )
 }
+
+Orders.propTypes = {
+  token: PropTypes.string.isRequired,
+};
 
 export default Orders
