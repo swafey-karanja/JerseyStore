@@ -1,5 +1,13 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import Stripe from "stripe";
+
+// global variables
+const currency = 'usd';
+const deliveryFee = 10;
+
+// gateway initializations
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // placing orders using Cash On Delivery
 const placeOrderCod = async (req, res) => {
@@ -33,8 +41,15 @@ const placeOrderCod = async (req, res) => {
 
 // placing orders using stripe
 const placeOrderStripe = async (req, res) => {
+    console.log(req.headers)
     try {
         const { userId, items, amount, address } = req.body;
+        const { origin } = req.headers;
+        console.log("Received Origin URL:", origin);
+        
+        if (!origin) {
+            return res.status(400).json({ success: false, message: "Missing origin URL in request headers." });
+        }
 
         // Implement order processing logic here using the provided user, items, amount, and address.
         const orderData = {
@@ -50,8 +65,36 @@ const placeOrderStripe = async (req, res) => {
         const newOrder = new orderModel(orderData);
         await newOrder.save();
 
-        await userModel.findByIdAndUpdate(userId, { cartData:{} });
-        res.status(200).json({ success: true, message: 'Order placed successfully' });
+        const line_items = items.map((item) => ({
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: item.name
+                },
+                unit_amount: item.price * 100
+            },
+            quantity: item.quantity
+        }));
+
+        line_items.push({
+            price_data: {
+                currency: currency,
+                product_data: {
+                    name: 'Delivery Fee'
+                },
+                unit_amount: deliveryFee * 100
+            },
+            quantity: 1
+        })
+
+        const session = await stripe.checkout.sessions.create({
+            success_url: `${origin}/verify?success=true&orderId=${newOrder._id}`,
+            cancel_url: `${origin}/verify?success=false&orderId=${newOrder._id}`,
+            line_items,
+            mode: 'payment'   
+        });
+
+        res.json({success: true, session_url: session.url});
 
     } catch (error) {
         console.error(error);
@@ -59,6 +102,26 @@ const placeOrderStripe = async (req, res) => {
         
     }
     
+}
+
+//verifying stripe payemnt
+const stripeVerification = async (req, res) => {
+    const { orderId, success, userId } = req.body;
+
+    try {
+        if(success === 'true') {
+            await orderModel.findByIdAndUpdate(orderId, {payment: true});
+            await userModel.findByIdAndUpdate(userId, { cartData:{} });
+            res.status(200).json({ success: true, message: 'Payment made successfully' });
+        } else {
+            await orderModel.findByIdAndDelete(orderId);
+            res.status(500).json({ success: false, message: 'Payment failed' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+        
+    }
 }
 
 // placing orders using razorpay
@@ -109,5 +172,5 @@ const updateOrderStatus = async (req, res) => {
 }
 
 
-export { placeOrderCod, placeOrderRazorPay, placeOrderStripe, allOrders, userOrders, updateOrderStatus };
+export { placeOrderCod, placeOrderRazorPay, placeOrderStripe, stripeVerification, allOrders, userOrders, updateOrderStatus };
 

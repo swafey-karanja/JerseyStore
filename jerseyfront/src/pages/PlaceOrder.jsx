@@ -3,7 +3,8 @@ import { assets } from "../assets/assets"
 import CartTotal from "../components/CartTotal"
 import Title from "../components/Title"
 import { ShopContext } from "../context/ShopContext"
-import axios from "axios"
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const PlaceOrder = () => {
 
@@ -68,18 +69,31 @@ const PlaceOrder = () => {
         // API calls for payment methods
         case 'COD':
           // API call for COD payment
-          console.log("switch executed")
-          const response = await axios.post(backendUrl + '/api/order/cash', orderData, {headers: {token}})
+          // console.log("switch executed")
+          { const response = await axios.post(backendUrl + '/api/order/cash', orderData, {headers: {token}})
           if(response.data.success) {
             navigate("/orders")
             setCartItems({})
             // toast.success(response.data.message);
             
           } else {
-            console.error("Failed to place order", error);
+            // console.error("Failed to place order", error);
             toast.error(response.data.message);
           }
-          break;
+          break; }
+
+        case 'STRIPE' : 
+          // API call for Stripe payment
+          { const response_stripe = await axios.post(backendUrl + '/api/order/stripe', orderData, {headers: {token}});
+          if(response_stripe.data.success) {
+            const { session_url } = response_stripe.data;
+            window.location.replace(session_url);
+            console.log(response_stripe.data.message); 
+          } else {
+            console.error("Failed to place order", response_stripe.data.message);
+            toast.error(response_stripe.data.message);
+          }
+           break; }
       
         default:
           break;
