@@ -1,7 +1,7 @@
 import express from "express";
 import {
   placeOrderCod,
-  placeOrderRazorPay,
+  placeOrderMpesa,
   placeOrderStripe,
   allOrders,
   userOrders,
@@ -15,7 +15,7 @@ const orderRouter = express.Router();
 
 // payment method Actions
 orderRouter.post("/cash", authUser, placeOrderCod);
-orderRouter.post("/razorpay", authUser, placeOrderRazorPay);
+orderRouter.post("/mpesa", authUser, placeOrderMpesa);
 orderRouter.post("/stripe", authUser, placeOrderStripe);
 
 // user actions

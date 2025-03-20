@@ -124,10 +124,30 @@ const stripeVerification = async (req, res) => {
     }
 }
 
-// placing orders using razorpay
-const placeOrderRazorPay = async (req, res) => {
-    
+//get mpesa access token
+const getAccessToken = async () => {
+    const consumerKey = process.env.MPESA_CONSUMER_KEY;
+    const consumerSecret = process.env.MPESA_CONSUMER_SECRET_KEY;
+    const auth = Buffer.from(`$${consumerKey}:${consumerSecret}`).toString('base64');
+    const url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+
+    try {
+        const response = await axios.get(url, {headers : { Authorization: `Basic ${auth}`}});
+        return response.data.access_token;
+    } catch (error) {
+        console.error('Error generating access token:', error.response ? error.response.data : error.message);
+        throw new Error('Failed to get access token');
+        
+    }
+};
+
+// placing orders using mpesa
+const placeOrderMpesa = async (req, res) => {
+    const accessToken = await getAccessToken();
+
+    const { amount, phoneNumber } = req.body;
 }
+
 
 // fetch orders for the admin panel
 const allOrders = async (req, res) => {
@@ -172,5 +192,5 @@ const updateOrderStatus = async (req, res) => {
 }
 
 
-export { placeOrderCod, placeOrderRazorPay, placeOrderStripe, stripeVerification, allOrders, userOrders, updateOrderStatus };
+export { placeOrderCod, placeOrderMpesa, placeOrderStripe, stripeVerification, allOrders, userOrders, updateOrderStatus };
 
