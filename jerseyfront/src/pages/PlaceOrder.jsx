@@ -30,6 +30,35 @@ const PlaceOrder = () => {
     setFormData(data => ({...data, [name]: value}))
   };
 
+  const initPayment = (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      currency: order.currency,
+      amount: order.amount,
+      name: "Jersey Store order payment",
+      description: "Your Jersey Store Order payment",
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        try {
+          const { data } = await axios.post(backendUrl + '/api/order/razorpay-verification', response, {headers: {token}});
+          if (data.success) {
+            navigate('/orders')
+            setCartItems({})
+          }
+        } catch (error) {
+          console.error("Failed to verify payment", error);
+          toast.error(error);
+          
+        }
+      }
+    }
+
+    const rzp = new window.Razorpay(options);
+    rzp.open()
+  }
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
@@ -94,6 +123,17 @@ const PlaceOrder = () => {
             toast.error(response_stripe.data.message);
           }
            break; }
+
+           case 'RAZORPAY' : 
+           // API call for Razorpay payment
+           { const response_razorPay = await axios.post(backendUrl + '/api/order/razorPay', orderData, {headers: {token}});
+           if(response_razorPay.data.success) {
+             initPayment(response_razorPay.data.order);
+           } else {
+             console.error("Failed to place order", response_razorPay.data.message);
+             toast.error(response_razorPay.data.message);
+           }
+            break; }
       
         default:
           break;
@@ -150,10 +190,10 @@ const PlaceOrder = () => {
               <img src={assets.stripe_logo} alt="" className="mx-4 h-5" />
             </div>
 
-            <div onClick={() => setMethod('RAZORPAY')} className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
+           {/* <div onClick={() => setMethod('RAZORPAY')} className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'RAZORPAY' ? 'bg-green-500' : ''}`}></p>
               <img src={assets.razorpay_logo} alt="" className="mx-4 h-5" />
-            </div>
+            </div>*/}
 
             <div onClick={() => setMethod('COD')} className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'COD' ? 'bg-green-500' : ''}`}></p>
