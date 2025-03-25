@@ -2,11 +2,14 @@ import userModel from "../models/userModel.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
 
 const createToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET)
 }
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Route for user login
 
@@ -42,6 +45,90 @@ const loginUser = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 
+}
+
+
+// login with google
+const googleLogin = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: 'No token provided'
+            });
+        }
+
+        // Verify the google token with more detailed error handling
+        let ticket;
+        try {
+            ticket = await client.verifyIdToken({
+                idToken: token,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+        } catch (verifyError) {
+            console.error('Token verification error:', verifyError);
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid token',
+                error: verifyError.message
+            });
+        }
+
+        const payload = ticket.getPayload();
+        const { email, name, sub: googleId } = payload;
+        
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'No email found in Google profile'
+            });
+        }
+
+        // Check if user exists in your database
+        let user = await userModel.findOne({ 
+            $or: [
+                { email }, 
+                { googleId }  // Optional: store Google ID for additional verification
+            ]
+        });
+        
+        if (!user) {
+            // Create new user if doesn't exist
+            const randomPassword = Math.random().toString(36).slice(-8) + 
+                                 Math.random().toString(36).slice(-8);
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+            user = new userModel({
+                name,
+                email,
+                password: hashedPassword,
+                googleId,  // Optional: store Google ID
+                isGoogleAuth: true
+            });
+            
+            await user.save();
+        }
+
+        // Generate your JWT token
+        const authToken = createToken(user._id);
+        
+        res.status(200).json({
+            success: true,
+            message: 'Login Successful',
+            token: authToken
+        });
+
+    } catch (error) {
+        console.error('Google login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Google authentication failed',
+            error: error.message
+        });
+    }
 }
 
 // Route for user registration
@@ -121,4 +208,4 @@ const adminLogin = async (req, res) => {
 
 }
 
-export { registerUser, loginUser, adminLogin };
+export { registerUser, loginUser, googleLogin, adminLogin };
